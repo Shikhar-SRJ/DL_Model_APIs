@@ -3,6 +3,7 @@ from keras.preprocessing.image import img_to_array
 from keras.applications import imagenet_utils
 import numpy as np
 
+model = None
 
 def load_model():
     # load the pre-trained Keras model (here we are using a model
