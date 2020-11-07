@@ -34,8 +34,7 @@ def prepare_image(image, target):
 
 @app.route("/predict", methods=["POST"])
 def predict():
-    # initialize the data dictionary that will be returned from the
-    # view
+    # initialize the data dictionary that will be returned from the view
     data = {"success": False}
 
     # ensure an image was properly uploaded to our endpoint
