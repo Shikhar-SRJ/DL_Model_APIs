@@ -22,11 +22,11 @@ def predict():
             image = Image.open(io.BytesIO(image))
 
             # preprocess the image and prepare it for classification
-            image = prepare_image(image, target=(224, 224))
+            image = utils.prepare_image(image, target=(224, 224))
 
             # classify the input image and then initialize the list
             # of predictions to return to the client
-            preds = model.predict(image)
+            preds = utils.model.predict(image)
             results = imagenet_utils.decode_predictions(preds)
             data["predictions"] = []
 
