@@ -68,12 +68,12 @@ def predict():
 
 @app.route('/')
 def home():
-    return jsonify({"message": "Welcome"})
+    return jsonify({"message": "Welcome_test"})
 
 if __name__ == '__main__':
     print("[INFO] Loading Keras Model")
     print("[INFO] Please wait until server has fully started")
     load_model()
     print("[INFO] Server is starting")
-    app.run()
+    app.run(debug=True)
 
