@@ -1,6 +1,8 @@
 from flask import Flask
+import os
 
 app = Flask(__name__)
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 from app import routes
 
