@@ -63,13 +63,21 @@ def predict():
             allowed_classes = list(class_names.values())
             counted_classes = utils.count_objects(pred_bbox, by_class=True, allowed_classes=allowed_classes)
 
-            data["predictions"] = counted_classes
+            predictions = []
+            for i in range(valid_detections.numpy()[0]):
+                prediction = dict()
+                prediction['class_id'] = int(classes.numpy()[0][i])
+                prediction['name'] = class_names[int(classes.numpy()[0][i])]
+                prediction['coordinates'] = {}
+                prediction['coordinates']['xmin'] = str(bboxes[i][0])
+                prediction['coordinates']['ymin'] = str(bboxes[i][1])
+                prediction['coordinates']['xmax'] = str(bboxes[i][2])
+                prediction['coordinates']['ymax'] = str(bboxes[i][3])
+                prediction['confidence'] = str(scores.numpy()[0][i])
+                predictions.append(prediction)
 
-            # loop over the results and add them to the list of
-            # returned predictions
-            # for (imagenetID, label, prob) in results[0]:
-            #     r = {"label": label, "probability": float(prob)}
-            #     data["predictions"].append(r)
+            data["predictions"] = predictions
+            data["counts"] = counted_classes
 
             # indicate that the request was a success
             data["success"] = True
