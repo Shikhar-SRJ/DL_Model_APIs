@@ -1,8 +1,11 @@
 import io
 from flask import jsonify, request
-from keras.applications import imagenet_utils
+import tensorflow as tf
 from PIL import Image
+import numpy as np
 from app import app, utils
+import cv2
+
 
 @app.route('/')
 def home():
@@ -19,22 +22,54 @@ def predict():
         if request.files.get("image"):
             # read the image in PIL format
             image = request.files["image"].read()
-            image = Image.open(io.BytesIO(image))
+            # original_image = Image.open(io.BytesIO(image))
+
+            image = np.fromstring(image, np.uint8)
+            original_image = cv2.imdecode(image, cv2.IMREAD_COLOR)
+            # cv2.imwrite('test.jpg', original_image)
 
             # preprocess the image and prepare it for classification
-            image = utils.prepare_image(image, target=(224, 224))
+            image = utils.prepare_image(original_image, input_size=416)
+
+            interpreter = utils.model.load_interpreter()
+            input_details = utils.model.input_details()
+            output_details = utils.model.output_details()
 
             # classify the input image and then initialize the list
             # of predictions to return to the client
-            preds = utils.model.predict(image)
-            results = imagenet_utils.decode_predictions(preds)
-            data["predictions"] = []
+            interpreter.set_tensor(input_details[0]['index'], image)
+            interpreter.invoke()
+            pred = [interpreter.get_tensor(output_details[i]['index']) for i in range(len(output_details))]
+            boxes, pred_conf = utils.filter_boxes(pred[0], pred[1], score_threshold=0.25, input_shape=tf.constant([utils.input_size, utils.input_size]))
+
+            # preds = utils.model.predict(image)
+            # results = imagenet_utils.decode_predictions(preds)
+            # data["predictions"] = []
+
+            boxes, scores, classes, valid_detections = tf.image.combined_non_max_suppression(
+                boxes=tf.reshape(boxes, (tf.shape(boxes)[0], -1, 1, 4)),
+                scores=tf.reshape(
+                    pred_conf, (tf.shape(pred_conf)[0], -1, tf.shape(pred_conf)[-1])),
+                max_output_size_per_class=50,
+                max_total_size=50,
+                iou_threshold=utils.iou,
+                score_threshold=utils.score
+            )
+
+            original_h, original_w, _ = original_image.shape
+            bboxes = utils.format_boxes(boxes.numpy()[0], original_h, original_w)
+            pred_bbox = [bboxes, scores.numpy()[0], classes.numpy()[0], valid_detections.numpy()[0]]
+            class_names = utils.model.read_labels()
+            allowed_classes = list(class_names.values())
+            counted_classes = utils.count_objects(pred_bbox, by_class=True, allowed_classes=allowed_classes)
+
+            data["predictions"] = counted_classes
 
             # loop over the results and add them to the list of
             # returned predictions
-            for (imagenetID, label, prob) in results[0]:
-                r = {"label": label, "probability": float(prob)}
-                data["predictions"].append(r)
+            # for (imagenetID, label, prob) in results[0]:
+            #     r = {"label": label, "probability": float(prob)}
+            #     data["predictions"].append(r)
 
             # indicate that the request was a success
             data["success"] = True
