@@ -1,5 +1,7 @@
+/.idea
 /venv
 .flaskenv
+/tf_lite/model.tflite
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

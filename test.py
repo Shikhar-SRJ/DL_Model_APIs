@@ -6,7 +6,7 @@ import argparse
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-i', '--image', help='name of image to be tested', default='index.jpeg')
+parser.add_argument('-i', '--image', help='name of image to be tested', default='index.jpg')
 args = parser.parse_args()
 
 # initialize the Keras REST API endpoint URL along with the input
@@ -27,10 +27,10 @@ print(f'\n{r}\n\n')
 # ensure the request was successful
 if r["success"]:
     # loop over the predictions and display them
-    for (i, result) in enumerate(r["predictions"]):
-        print("{}. {}: {:.4f}".format(i + 1, result["label"],
-            result["probability"]))
-
+    # for (i, result) in enumerate(r["predictions"]):
+    #     print("{}. {}: {:.4f}".format(i + 1, result["label"],
+    #         result["probability"]))
+    pass
 # otherwise, the request failed
 else:
     print("Request failed")
