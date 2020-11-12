@@ -22,7 +22,7 @@ payload = {"image": image}
 
 # submit the request
 r = requests.post(KERAS_REST_API_URL, files=payload).json()
-print(f'\n{r}\n\n')
+print(f'{r}')
 
 # ensure the request was successful
 if r["success"]:
