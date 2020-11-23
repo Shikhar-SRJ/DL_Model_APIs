@@ -24,7 +24,7 @@ def prepare_image(image, input_size=input_size):
     #     image = image.convert("RGB")
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-    target = (input_size, input_size)
+    # target = (input_size, input_size)
     # resize the input image and preprocess it
     # image = image.resize(target)
     # image = img_to_array(image)
