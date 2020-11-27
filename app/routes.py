@@ -5,6 +5,7 @@ from PIL import Image
 import numpy as np
 from app import app, utils
 import cv2
+from app.models import User, Data, Predictions
 
 
 @app.route('/')
@@ -16,10 +17,12 @@ def home():
 def predict():
     # initialize the data dictionary that will be returned from the view
     data = {"success": False}
+    uid = request.values.get("id")
+    user = User.query.filter_by(unique_id=uid).first()
 
     # ensure an image was properly uploaded to our endpoint
     if request.method == "POST":
-        if request.files.get("image"):
+        if request.files.get("image") and user:
             # read the image in PIL format
             image = request.files["image"].read()
             # original_image = Image.open(io.BytesIO(image))
@@ -62,6 +65,9 @@ def predict():
             class_names = utils.model.read_labels()
             allowed_classes = list(class_names.values())
             counted_classes = utils.count_objects(pred_bbox, by_class=True, allowed_classes=allowed_classes)
+            final_image = utils.draw_bbox(original_image, pred_bbox, counted_classes, allowed_classes=allowed_classes)
+            final_image = Image.fromarray(final_image.astype(np.uint8))
+            final_image = cv2.cvtColor(np.array(final_image), cv2.COLOR_BGR2RGB)
 
             predictions = []
             for i in range(valid_detections.numpy()[0]):
@@ -81,6 +87,6 @@ def predict():
 
             # indicate that the request was a success
             data["success"] = True
-
+            data["id"] = request.values['id']
     # return the data dictionary as a JSON response
     return jsonify(data)
