@@ -18,10 +18,11 @@ IMAGE_PATH = BASEDIR + '/images/' +args.image
 
 # load the input image and construct the payload for the request
 image = open(IMAGE_PATH, "rb").read()
+uid = "unique_id"
 payload = {"image": image}
 
 # submit the request
-r = requests.post(KERAS_REST_API_URL, files=payload).json()
+r = requests.post(KERAS_REST_API_URL + f"?id={uid}", files=payload).json()
 print(f'{r}')
 
 # ensure the request was successful

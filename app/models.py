@@ -17,8 +17,9 @@ class User(db.Model):
 class Data(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     image = db.Column(db.LargeBinary)
-    prediction_id = db.Column(db.Integer, db.ForeignKey('predictions.id'), nullable=False)
+    # prediction_id = db.Column(db.Integer, db.ForeignKey('predictions.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    prediction = db.relationship('Predictions', backref='data', lazy='dynamic')
 
 
 class Predictions(db.Model):
@@ -27,4 +28,6 @@ class Predictions(db.Model):
     confidence = db.Column(db.Float)
     count = db.Column(db.Integer)
     coordinates = db.Column(db.String(100))
-    data = db.relationship('Data', backref='predictions', lazy='dynamic')
+    # data = db.relationship('Data', backref='predictions', lazy='dynamic')
+    data_id = db.Column(db.Integer, db.ForeignKey('data.id'), nullable=False)
+
