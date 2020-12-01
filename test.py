@@ -18,7 +18,7 @@ IMAGE_PATH = BASEDIR + '/images/' +args.image
 
 # load the input image and construct the payload for the request
 image = open(IMAGE_PATH, "rb").read()
-uid = "unique_id"
+uid = "unique_id_1"
 payload = {"image": image}
 
 # submit the request
