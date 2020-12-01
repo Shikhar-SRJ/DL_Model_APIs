@@ -24,10 +24,9 @@ class Data(db.Model):
 
 class Predictions(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    belong_to_class = db.Column(db.String(40), unique=True, nullable=False)
+    belong_to_class = db.Column(db.String(40), nullable=False)
     confidence = db.Column(db.Float)
     count = db.Column(db.Integer)
     coordinates = db.Column(db.String(100))
     # data = db.relationship('Data', backref='predictions', lazy='dynamic')
     data_id = db.Column(db.Integer, db.ForeignKey('data.id'), nullable=False)
-

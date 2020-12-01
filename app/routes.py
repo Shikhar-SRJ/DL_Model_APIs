@@ -6,6 +6,7 @@ import numpy as np
 from app import app, utils
 import cv2
 from app.models import User, Data, Predictions
+from app import db
 
 
 @app.route('/')
@@ -66,9 +67,13 @@ def predict():
             allowed_classes = list(class_names.values())
             counted_classes = utils.count_objects(pred_bbox, by_class=True, allowed_classes=allowed_classes)
             final_image = utils.draw_bbox(original_image, pred_bbox, counted_classes, allowed_classes=allowed_classes)
-            final_image = Image.fromarray(final_image.astype(np.uint8))
-            final_image = cv2.cvtColor(np.array(final_image), cv2.COLOR_BGR2RGB)
+            # final_image = Image.fromarray(final_image.astype(np.uint8))
+            # final_image = cv2.cvtColor(np.array(final_image), cv2.COLOR_BGR2RGB)
+            _, db_image = cv2.imencode('.jpg', final_image)
 
+            d = Data(image=db_image, user_id=user.id)
+            db.session.add(d)
+            db.session.commit()
             predictions = []
             for i in range(valid_detections.numpy()[0]):
                 prediction = dict()
@@ -81,6 +86,13 @@ def predict():
                 prediction['coordinates']['ymax'] = str(bboxes[i][3])
                 prediction['confidence'] = str(scores.numpy()[0][i])
                 predictions.append(prediction)
+                p = Predictions(belong_to_class=class_names[int(classes.numpy()[0][i])],
+                                confidence=scores.numpy()[0][i],
+                                count=counted_classes[class_names[int(classes.numpy()[0][i])]],
+                                coordinates='not available',
+                                data_id=d.id)
+                db.session.add(p)
+                db.session.commit()
 
             data["predictions"] = predictions
             data["counts"] = counted_classes
