@@ -1,7 +1,5 @@
-import io
 from flask import jsonify, request
 import tensorflow as tf
-from PIL import Image
 import numpy as np
 from app import app, utils
 import cv2
@@ -107,3 +105,7 @@ def predict():
             data["id"] = request.values['id']
     # return the data dictionary as a JSON response
     return jsonify(data)
+
+# @app.route('/register', methods=['POST'])
+# def register():
+#
