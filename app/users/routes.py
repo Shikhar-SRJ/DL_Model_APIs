@@ -1,18 +1,20 @@
-from flask import jsonify, request
+from flask import jsonify, request, Blueprint
 import tensorflow as tf
 import numpy as np
-from app import app, utils
+from app.users import utils
 import cv2
 from app.models import User, Data, Predictions, Coordinates
 from app import db
 
+users = Blueprint('users', __name__)
 
-@app.route('/')
+
+@users.route('/')
 def home():
     return jsonify({"message": "Welcome"})
 
 
-@app.route("/predict", methods=["POST"])
+@users.route("/predict", methods=["POST"])
 def predict():
     # initialize the data dictionary that will be returned from the view
     data = {"success": False}
@@ -42,7 +44,8 @@ def predict():
             interpreter.set_tensor(input_details[0]['index'], image)
             interpreter.invoke()
             pred = [interpreter.get_tensor(output_details[i]['index']) for i in range(len(output_details))]
-            boxes, pred_conf = utils.filter_boxes(pred[0], pred[1], score_threshold=0.25, input_shape=tf.constant([utils.input_size, utils.input_size]))
+            boxes, pred_conf = utils.filter_boxes(pred[0], pred[1], score_threshold=0.25,
+                                                  input_shape=tf.constant([utils.input_size, utils.input_size]))
 
             # preds = utils.model.predict(image)
             # results = imagenet_utils.decode_predictions(preds)
@@ -92,7 +95,8 @@ def predict():
                 db.session.add(p)
                 db.session.commit()
 
-                c = Coordinates(x_min=bboxes[i][0], y_min=bboxes[i][1], x_max=bboxes[i][2], y_max=bboxes[i][3], prediction_id=p.id)
+                c = Coordinates(x_min=bboxes[i][0], y_min=bboxes[i][1], x_max=bboxes[i][2], y_max=bboxes[i][3],
+                                prediction_id=p.id)
 
                 db.session.add(c)
                 db.session.commit()
@@ -106,6 +110,6 @@ def predict():
     # return the data dictionary as a JSON response
     return jsonify(data)
 
-# @app.route('/register', methods=['POST'])
+# @users.route('/register', methods=['POST'])
 # def register():
 #
