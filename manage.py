@@ -1,3 +1,5 @@
-from app.utils import load_model
+from app.users.utils import load_model
+from app import create_app
+
 load_model()
-from app import app
+app = create_app()

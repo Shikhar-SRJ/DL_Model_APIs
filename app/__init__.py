@@ -6,16 +6,25 @@ import os
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
-app = Flask(__name__)
-app.config.from_object(Config)
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+# app = Flask(__name__)
+# app.config.from_object(Config)
+# db = SQLAlchemy(app)
+# migrate = Migrate(app, db)
+#
+# from app import routes, models
 
-from app import routes, models
+db = SQLAlchemy()
+migrate = Migrate()
 
-# if __name__ == '__main__':
-#     print("[INFO] Loading Keras Model")
-#     print("[INFO] Please wait until server has fully started")
-#     load_model()
-#     print("[INFO] Server is starting")
-#     app.run()
+
+def create_app():
+    app = Flask(__name__)
+    app.config.from_object(Config)
+
+    db.init_app(app)
+    migrate.init_app(app, db)
+
+    from app.users.routes import users
+    app.register_blueprint(users)
+
+    return app
