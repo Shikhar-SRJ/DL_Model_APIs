@@ -91,13 +91,13 @@ def predict():
                 predictions.append(prediction)
 
                 p = Predictions(belong_to_class=class_names[int(classes.numpy()[0][i])],
-                                confidence=scores.numpy()[0][i],
+                                confidence=float(scores.numpy()[0][i]),
                                 count=counted_classes[class_names[int(classes.numpy()[0][i])]],
                                 data_id=d.id)
                 db.session.add(p)
                 db.session.commit()
 
-                c = Coordinates(x_min=bboxes[i][0], y_min=bboxes[i][1], x_max=bboxes[i][2], y_max=bboxes[i][3],
+                c = Coordinates(x_min=float(bboxes[i][0]), y_min=float(bboxes[i][1]), x_max=float(bboxes[i][2]), y_max=float(bboxes[i][3]),
                                 prediction_id=p.id)
 
                 db.session.add(c)
