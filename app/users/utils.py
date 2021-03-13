@@ -4,12 +4,34 @@ from tf_lite import Model
 import cv2
 import random
 import colorsys
+from functools import wraps
+from flask import request, jsonify, current_app
+import jwt
+from app.models import User
 
 model = None
 labels = {}
 iou = 0.45
 score = 0.3
 input_size = 416
+
+
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+        if 'x-access-token' in request.headers:
+            token = request.headers['x-access-token']
+        if not token:
+            return jsonify({"message": "Token is missing!"}), 401
+        try:
+            data = jwt.decode(token, current_app.config['SECRET_KEY'])
+            current_user = User.query.filer_by(id=data['public_id']).first()
+        except:
+            return jsonify({"message": "Token is invalid!"}), 401
+        return f(current_user, *args, **kwargs)
+
+    return decorated
 
 
 def load_model():
@@ -158,5 +180,3 @@ def draw_bbox(image, bboxes, info=False, counted_classes=None, show_label=True,
                                 cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0, 255, 0), 2)
                     offset += height_ratio
     return image
-
-
