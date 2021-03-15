@@ -1,4 +1,4 @@
-from flask import jsonify, request, Blueprint, current_app
+from flask import jsonify, request, Blueprint, current_app, send_file
 import tensorflow as tf
 import numpy as np
 from app.users import utils
@@ -6,7 +6,7 @@ import cv2
 from app.models import User, Data, Predictions, Coordinates
 from app import db
 from werkzeug.security import generate_password_hash, check_password_hash
-import jwt
+import jwt 
 
 users = Blueprint('users', __name__)
 
@@ -152,3 +152,23 @@ def login():
             return jsonify({"message": "Incorrect Username or Password !"}), 404
         token = jwt.encode({"public_id": user.id}, current_app.config["SECRET_KEY"])
         return jsonify({"message": "Logged in successfully", "token": token})
+
+
+@users.route('/profile')
+@utils.token_required
+def get_profile(current_user):
+    data = {
+        "Username": current_user.username,
+        "Phone No": current_user.phone_no,
+        "Unique ID": current_user.unique_id,
+    }
+    return jsonify(data)
+
+
+@users.route('/get_image')
+@utils.token_required
+def get_image(current_user):
+    data = Data.query.filter_by(user=current_user).order_by(Data.timestamp.desc()).first()
+    # image = data.image
+    # image_binary = read_image()
+    return ''
