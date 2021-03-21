@@ -1,4 +1,4 @@
-from flask import jsonify, request, Blueprint, current_app, send_file
+from flask import jsonify, request, Blueprint, current_app, send_file, make_response
 import tensorflow as tf
 import numpy as np
 from app.users import utils
@@ -169,6 +169,39 @@ def get_profile(current_user):
 @utils.token_required
 def get_image(current_user):
     data = Data.query.filter_by(user=current_user).order_by(Data.timestamp.desc()).first()
-    # image = data.image
-    # image_binary = read_image()
-    return ''
+    image = data.image
+    response = make_response(image)
+    response.headers.set('Content-Type', 'image/jpeg')
+    # response.headers.set()
+    return response
+
+
+@users.route('/get_data')
+@utils.token_required
+def get_data(current_user):
+    predictions = Data.query.filter_by(user=current_user).order_by(Data.timestamp.desc()).first().prediction
+    res = []
+    for prediction in predictions:
+        data = {
+            'id': prediction.id,
+            'class': prediction.belong_to_class,
+            'confidence': prediction.confidence,
+            'count': prediction.count
+        }
+        res.append(data)
+    return jsonify(res)
+
+
+@users.route('/get_coordinates/<id>')
+@utils.token_required
+def get_coordinates(current_user, id):
+    coordinates = Coordinates.query.filter_by(prediction_id=id).first()
+    data = {
+        'x_min': coordinates.x_min,
+        'x_max': coordinates.x_max,
+        'y_min': coordinates.y_min,
+        'y_max': coordinates.y_max,
+    }
+    return jsonify(data)
+
+
