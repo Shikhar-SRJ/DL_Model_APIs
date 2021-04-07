@@ -134,7 +134,7 @@ def register():
         db.session.commit()
 
         token = jwt.encode({"public_id": user.id}, current_app.config["SECRET_KEY"])
-        return jsonify({"message": "User Created Successfully", "token": token}), 201
+        return jsonify({"message": "User Created Successfully", "token": token.decode("utf-8")}), 201
 
 
 @users.route('/login', methods=['POST'])
@@ -151,7 +151,7 @@ def login():
         if not check_password_hash(user.password_hash, data['password']):
             return jsonify({"message": "Incorrect Username or Password !"}), 404
         token = jwt.encode({"public_id": user.id}, current_app.config["SECRET_KEY"])
-        return jsonify({"message": "Logged in successfully", "token": token})
+        return jsonify({"message": "Logged in successfully", "token": token.decode("utf-8")})
 
 
 @users.route('/profile')
