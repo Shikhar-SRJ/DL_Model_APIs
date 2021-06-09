@@ -1,5 +1,12 @@
 # DL_Model_APIs
 
+## Intro
+
+The server uses a custom YOLOv4 model to detect the fruits and vegetables in the frame, this finds application in smart fridge where the micro processor/controller periodically sends data to the server using POST APIs.
+This is not only limited to making prediction, but also has the flexibilty to allow users create their accounts and keep a track of their data. The APIs use JWT authentication to protect user's privacy. Furthermore, the APIs can be directtly integrated with any frontend (like React, Flutter) and are ready to use.
+
+However, I am not uploading the model right now. So, if you interested, you can use your own detection model (tflite) and you'll just need to make a few twaeks here and there.
+
 ## Set up the server
 
 You can also use a virtual environment
